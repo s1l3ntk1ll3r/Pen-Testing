@@ -76,7 +76,7 @@ nasm> jmp esp
 
 00000000  FFE4              jmp esp
 ```
-23) We now use `!mona find -s "\xff\xe4" -m slmfc.dll`
+23) We now use `!mona find -s "\xff\xe4" -m vuln.dll`
 
 24) We get a bunch of JMP ESP addresses we pick one with no badcharacters!!!!
 
