@@ -1,0 +1,23 @@
+# Ways to fool jpeg/png uploads
+
+1. Simply try to add the same extension .png or %00.png or pHP or pHp or PHP or php3 etc.
+2. Load up BurpSuite
+
+- rename file to malicious.php.png or .jpeg
+- Click upload file and intercept the request
+- Before forwarding remove the .png or .jpg and forward it
+- We just uploaded .php and we run it!
+
+3. Content-Type file upload
+
+- Upload a normal php file
+- Intercept it with BurpSuite and under 'Content-Type' change from application/php etc. to image/png
+- Navigate to it and run it
+
+4. Null byte Injection
+
+- Upload mal.php.jpg file and Intercept
+- Now where in "RAW" it says mal.php.jpg replace with mal.phpD.jpg
+- Go into "HEX" tab and look for this 'D' we just added and look at its HEX which will be '44'
+- Replace this with 00 and forward the packet.
+- Succesfully uploaded the php File

