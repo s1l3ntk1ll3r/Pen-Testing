@@ -1,0 +1,17 @@
+# How to use Kali Linux to cross-compile exploits for WINDOWS
+
+1. Python exploits -
+
+install pyinstaller of windows with wine on Kali and then
+
+wine ~/.wine/drive_c/Python27/Scripts/pyinstaller.exe --onefile 18176.py
+
+run `pyinstaller` located under the same directory as Python scripts
+
+wine ~/.wine/drive_c/Python27/Scripts/pyinstaller.exe --onefile HelloWorld.py
+
+Execute with wine
+
+wine ~/.wine/drive_c/dist/HelloWorld.exe
+
+2. https://medium.com/dreamcatcher-its-blog/making-an-stand-alone-executable-from-a-python-script-using-pyinstaller-d1df9170e263

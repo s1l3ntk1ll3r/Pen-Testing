@@ -1,0 +1,7 @@
+## Use this for Steganography or Image data extraction
+
+steghide extract -sf image.jpg
+
+2. Try strings
+
+strings filename
