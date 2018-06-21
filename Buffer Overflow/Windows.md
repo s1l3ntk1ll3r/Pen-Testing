@@ -2,8 +2,8 @@
 
 1) First we identify the IP, service and the port it is running and make edits in the fuzzer script
 
-## GO TO OPTIONS > APPEARANCE > Change > Font to 10-12 in IMMUNITY * View - CPU doubleclick
-2) We start fuzzing with Ollydbg/Immunity AS ADMINISTRATOR running while it is attached to the service
+**GO TO OPTIONS > APPEARANCE > Change > Font to 10-12 in IMMUNITY * View - CPU doubleclick
+2) We start fuzzing with Ollydbg/Immunity AS ADMINISTRATOR running while it is attached to the service**
 
 3) Depending on the no. of bytes which crash the service we see the EIP register pointing to AAAA
 
@@ -67,7 +67,7 @@ Right click ESP and "Follow in dump" REMEMBER TO VIEW HEX DUMP!!!!!!!!!!!
 
 20)  Once we have our candidate we click the 'm' memory mapping and find the same and must have R and E both
 
-21) We then go to Executables by clicking 'e' and double clicking the SLMFC.dll and we see the code for execution of this dll.
+21) We then go to Executables by clicking 'e' and double clicking the Vulnerable.dll and we see the code for execution of this dll.
 
 22) To find this JMP ESP we can use nasm.rb inbuilt to generate the opcode so we can use mona to find it in our execution page for us.
 ```
