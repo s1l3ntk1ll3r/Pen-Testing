@@ -2,7 +2,7 @@
 
 1) First we identify the port and service running
 
-2) We load it up in edb using the following command - edb --run /usr/games/crossfire/bin/crossfire and play 'Run' TWICE!
+2) We load it up in edb using the following command - edb --run /usr/games/vulnapp/bin/vulnapp and play 'Run' TWICE!
 
 3) First we send our PoC and crash the application
 
