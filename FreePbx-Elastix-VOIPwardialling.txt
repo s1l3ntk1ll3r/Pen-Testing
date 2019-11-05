@@ -1,0 +1,10 @@
+FreePBX 2.10.0 / Elastix 2.2.0
+
+Exploit can be found at  - https://www.exploit-db.com/exploits/18650
+
+Modifying the exploit for the extension # you need to resort to war dialling
+
+SIP Vicious is a tool we can use OR svwar a war dialling tool 
+
+svwar -m INVITE -e<RANGE> <IP ADDRESS>
+
