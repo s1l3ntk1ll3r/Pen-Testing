@@ -1,0 +1,3 @@
+Use SQLMap and feed it a request with -r and -p for parameter to test 
+
+sqlmap -r <burp post request contents in a file> -p <parameter>
