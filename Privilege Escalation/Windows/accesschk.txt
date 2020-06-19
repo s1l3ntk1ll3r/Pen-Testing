@@ -1,0 +1,13 @@
+// Accesschk stuff
+accesschk.exe /accepteula (always do this first!!!!!)
+accesschk.exe -ucqv [service_name] (requires sysinternals accesschk!)
+accesschk.exe -uwcqv "Authenticated Users" * (won't yield anything on Win 8)
+accesschk.exe -ucqv [service_name]
+
+// Find all weak folder permissions per drive.
+accesschk.exe -uwdqs Users c:\
+accesschk.exe -uwdqs "Authenticated Users" c:\
+
+// Find all weak file permissions per drive.
+accesschk.exe -uwqs Users c:\*.*
+accesschk.exe -uwqs "Authenticated Users" c:\*.*

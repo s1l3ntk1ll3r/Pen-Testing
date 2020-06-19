@@ -1,0 +1,9 @@
+1. Exactly like Unquoted service path but instead of dropping our executable anywhere on the path
+this is way more focused on just one of the locations.
+
+icacls "C:\Program Files\Program Folder"
+
+In unquoted service path we can put the malicious exe anyewhere on the path like C:\mal.exe or C:\Program Files\mal.exe and so on
+
+However, in this method its only a fixed folder C:\Program Files\A folder\ which we have write access to replace an executable
+and restart the service will do it for us.
