@@ -1,0 +1,15 @@
+# HTTP Parameter pollution
+
+## What is it?
+Server-side HPP and Client Side HPP
+Server side - take parameters and see what the server side code is doing with them. Experiment with values, use same parameters twice etc.
+Client side - Inject parameters in a URL and it is reflected back to the user.
+
+Be on the lookout for opportunities when websites accept content and appear
+to be contacting another web service, like social media sites, and relying on the
+current URL to generate the link to create a shared post.
+In these situations, it may be possible that submitted content is being passed
+on without undergoing proper security checks, which could lead to parameter
+pollution vulnerabilities.
+
+Always look for parameter tampering, use multiple parameters and see results.
