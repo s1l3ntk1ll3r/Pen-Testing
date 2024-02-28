@@ -3,5 +3,5 @@
 ## Windows
 1. Regular list - `dir`
 2. List with attributes - `dir /a`
-3. List hidden files - `dir /ah`
+3. List hidden files - `dir /ah` and/or `attrib`
 4. List alternate data streams - `dir /r` and to view `more < file:stream`
